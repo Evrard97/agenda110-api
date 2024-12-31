@@ -1,28 +1,44 @@
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
-import { query } from "../../../../lib/db";
+import { query } from "../../../../lib/postgr_db";
 
 export async function POST(req: Request) {
-  // const db = getDatabase();
-  // console.log(db);
-  // return db;
-  const { username, password } = await req.json();
-
-  if (!username || !password) {
-    return NextResponse.json(
-      { error: "Username and password are required" },
-      { status: 400 }
-    );
-  }
-
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await query("INSERT INTO users (username, password) VALUES (?, ?)", [
-      username,
-      hashedPassword,
-    ]);
+    const { username, password, is_admin = false } = await req.json();
 
-    return NextResponse.json({ message: "User registered successfully" });
+    // Vérifier les champs requis
+    if (!username || !password) {
+      return NextResponse.json(
+        { error: "Username and password are required" },
+        { status: 400 }
+      );
+    }
+
+    // Vérifier si l'utilisateur existe déjà
+    const existingUsers = await query(
+      "SELECT id FROM users WHERE username = $1",
+      [username]
+    );
+    if (existingUsers.length > 0) {
+      return NextResponse.json(
+        { error: "Username already exists" },
+        { status: 409 }
+      );
+    }
+
+    // Hacher le mot de passe
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insérer le nouvel utilisateur
+    await query(
+      "INSERT INTO users (username, password, is_admin) VALUES ($1, $2, $3)",
+      [username, hashedPassword, is_admin]
+    );
+
+    return NextResponse.json(
+      { message: "User registered successfully" },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error during registration:", error);
     return NextResponse.json(

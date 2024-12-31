@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query } from "../../../lib/db";
+import { query } from "../../../lib/postgr_db";
 import { verifyToken } from "../../../lib/auth";
 
 // GET: Récupérer toutes les tâches
@@ -21,7 +21,7 @@ export async function GET(req: Request) {
     }
 
     // Sinon, afficher uniquement les tâches de l'utilisateur
-    const userTasks = await query("SELECT * FROM tasks WHERE user_id = ?", [
+    const userTasks = await query("SELECT * FROM tasks WHERE user_id = $1", [
       user.id,
     ]);
 
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
 
-    await query("INSERT INTO tasks (title, user_id) VALUES (?, ?)", [
+    await query("INSERT INTO tasks (title, user_id) VALUES ($1, $2)", [
       title,
       user.id,
     ]);
@@ -96,7 +96,7 @@ export async function PUT(req: Request) {
 
     // Vérifier que la tâche appartient à l'utilisateur
     const tasks = await query(
-      "SELECT * FROM tasks WHERE id = ? AND user_id = ?",
+      "SELECT * FROM tasks WHERE id = $1 AND user_id = $2",
       [id, user.id]
     );
 
@@ -109,7 +109,7 @@ export async function PUT(req: Request) {
 
     // Mettre à jour la tâche
     await query(
-      "UPDATE tasks SET title = COALESCE(?, title), completed = COALESCE(?, completed) WHERE id = ? AND user_id = ?",
+      "UPDATE tasks SET title = COALESCE($1, title), completed = COALESCE($2, completed) WHERE id = $3 AND user_id = $4",
       [title, completed, id, user.id]
     );
 
@@ -144,7 +144,7 @@ export async function DELETE(req: Request) {
 
     // Vérifier que la tâche appartient à l'utilisateur
     const tasks = await query(
-      "SELECT * FROM tasks WHERE id = ? AND user_id = ?",
+      "SELECT * FROM tasks WHERE id = $1 AND user_id = $2",
       [id, user.id]
     );
 
@@ -156,7 +156,7 @@ export async function DELETE(req: Request) {
     }
 
     // Supprimer la tâche
-    await query("DELETE FROM tasks WHERE id = ? AND user_id = ?", [
+    await query("DELETE FROM tasks WHERE id = $1 AND user_id = $2", [
       id,
       user.id,
     ]);

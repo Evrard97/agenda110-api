@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
-import { query } from "../../../../lib/db";
+import { query } from "../../../../lib/postgr_db";
 import { generateToken } from "../../../../lib/auth";
 
 export async function POST(req: Request) {
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const users = await query("SELECT * FROM users WHERE username = ?", [
+    const users = await query("SELECT * FROM users WHERE username = $1", [
       username,
     ]);
 
