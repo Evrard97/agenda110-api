@@ -1,4 +1,5 @@
 import { Pool } from "pg";
+import logger from "@/lib/logger";
 
 // Charger les variables d'environnement
 const pool = new Pool({
@@ -38,10 +39,16 @@ export async function query(text: string, params?: any[]) {
 
     return res.rows;
   } catch (err) {
-    console.error("Error executing query:", {
+    // console.error("Error executing query:", {
+    //   query: text,
+    //   params,
+    //   error: err.message,
+    // });
+    // Enregistrer les autres erreurs dans un fichier
+    logger.error("Error", {
+      message: err.message,
       query: text,
-      params,
-      error: err.message,
+      params: params,
     });
     throw err;
   } finally {

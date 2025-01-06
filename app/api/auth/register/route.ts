@@ -1,18 +1,15 @@
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
-import { query } from "../../../../lib/postgr_db";
+import { query } from "@/lib/postgr_db";
+import { userSchema } from "@/lib/dataValidation/user_validation";
+import logger from "@/lib/logger";
 
 export async function POST(req: Request) {
   try {
-    const { username, password, is_admin = false } = await req.json();
-
-    // Vérifier les champs requis
-    if (!username || !password) {
-      return NextResponse.json(
-        { error: "Username and password are required" },
-        { status: 400 }
-      );
-    }
+    // Récupérer et valider les données utilisateur
+    const body = await req.json();
+    const validatedData = userSchema.parse(body); // Validation via zod
+    const { username, password, is_admin = false } = validatedData;
 
     // Vérifier si l'utilisateur existe déjà
     const existingUsers = await query(
@@ -40,7 +37,19 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error during registration:", error);
+    // Gérer les erreurs de validation
+    if (error.name === "ZodError") {
+      return NextResponse.json(
+        { error: error.errors.map((e) => e.message) },
+        { status: 400 }
+      );
+    }
+
+    // Enregistrer les autres erreurs dans un fichier
+    logger.error("Error during registration", {
+      message: error.message,
+    });
+
     return NextResponse.json(
       { error: "Unable to register user" },
       { status: 500 }
