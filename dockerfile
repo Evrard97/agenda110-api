@@ -29,7 +29,7 @@ COPY --from=builder /app ./
 RUN npm install --production
 
 # Copier et renommer .env.example en .env
-COPY .env.example .env
+COPY .env.exemple .env
 
 # Commande pour démarrer l'application
 CMD ["npm", "start"]
