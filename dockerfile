@@ -28,8 +28,8 @@ COPY --from=builder /app ./
 # Installer uniquement les dépendances nécessaires à l'exécution
 RUN npm install --production
 
-# Copier le fichier .env dans le conteneur
-COPY .env .env
+# Copier et renommer .env.example en .env
+COPY .env.example .env
 
 # Commande pour démarrer l'application
 CMD ["npm", "start"]
