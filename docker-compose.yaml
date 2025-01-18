@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: . # Utilise le Dockerfile à la racine
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000" # Expose le port 3000 pour l'API
+    environment:
+      # Variables d'environnement pour l'API
+      - JWT_SECRET=${JWT_SECRET}
+      - PG_USER=${PG_USER}
+      - PG_PASSWORD=${PG_PASSWORD}
+      - PG_HOST=database # Nom du service PostgreSQL
+      - PG_DATABASE=${PG_DATABASE}
+      - PG_PORT=${PG_PORT}
+      - NODE_ENV=production
+    volumes:
+      - .env:/app/.env # Monte le fichier .env dans le conteneur
