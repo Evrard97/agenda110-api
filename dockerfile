@@ -1,38 +1,31 @@
 # Étape 1 : Construire l'application
 FROM node:18-alpine AS builder
-
-# Définir le répertoire de travail
 WORKDIR /app
 
 # Copier les fichiers nécessaires
 COPY package.json package-lock.json ./
-
-# Installer les dépendances
 RUN npm install
 
-# Copier le reste du projet dans le conteneur
+# Copier le reste du projet
 COPY . .
 
-# Construire l'application Next.js pour la production
+# Renommer .env.example en .env
+RUN cp .env.example .env || true
+
+# Construire l'application
 RUN npm run build
 
 # Étape 2 : Exécuter l'application
 FROM node:18-alpine
-
-# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier les fichiers de l'étape de build
+# Copier les fichiers de l'étape de construction
 COPY --from=builder /app ./
 
-# Installer uniquement les dépendances nécessaires à l'exécution
+# Installer les dépendances nécessaires pour la production
 RUN npm install --production
-
-# Copier et renommer .env.example en .env
-COPY .env.exemple .env
 
 # Commande pour démarrer l'application
 CMD ["npm", "start"]
 
-# Exposer le port 3000
 EXPOSE 3000
