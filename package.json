@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
+    "standalone": "next build && cp -r public/ .next/standalone && cp -r .next/static .next/standalone/.next",
     "start": "next start",
     "lint": "next lint"
   },
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "19.0.2",
     "@types/react-dom": "^19",
