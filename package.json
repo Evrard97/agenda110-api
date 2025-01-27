@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "standalone": "next build && cp -r public/ .next/standalone && cp -r .next/static .next/standalone/.next",
+    "standalone": "next build && next export",
     "start": "next start",
     "lint": "next lint"
   },
