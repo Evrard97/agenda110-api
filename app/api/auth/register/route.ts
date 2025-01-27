@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { query } from "@/lib/postgr_db";
 import { userSchema } from "@/lib/dataValidation/user_validation";
 import logger from "@/lib/logger";
+import { ZodError } from "zod";
 
 export async function POST(req: Request) {
   try {
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
     );
   } catch (error) {
     // Gérer les erreurs de validation
-    if (error.name === "ZodError") {
+    if (error instanceof ZodError) {
       return NextResponse.json(
         { error: error.errors.map((e) => e.message) },
         { status: 400 }
@@ -46,9 +47,8 @@ export async function POST(req: Request) {
     }
 
     // Enregistrer les autres erreurs dans un fichier
-    logger.error("Error during registration", {
-      message: error.message,
-    });
+    logger.error("Unknown error during registration", { error });
+
 
     return NextResponse.json(
       { error: "Unable to register user" },

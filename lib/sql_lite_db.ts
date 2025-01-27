@@ -4,7 +4,7 @@ import path from "path";
 export const db = new sqlite3.Database(
   path.resolve(process.env.DATABASE_PATH ?? ""),
   sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
-  (err) => {
+  (err:any) => {
     if (err) {
       console.error("Error opening database:", err.message);
     } else {
@@ -34,7 +34,7 @@ export async function getDatabase() {
         FOREIGN KEY (user_id) REFERENCES users(id)
       );
       `,
-      (err) => {
+      (err:any) => {
         if (err) {
           console.error("Error creating tables:", err.message);
           reject(err);
@@ -49,7 +49,7 @@ export async function getDatabase() {
 
 export async function query(sql: string, params: any[] = []): Promise<any> {
   return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
+    db.all(sql, params, (err:any, rows:any) => {
       if (err) {
         console.error("Error executing query:", err.message);
         reject(err);
